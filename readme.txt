@@ -54,7 +54,7 @@ Yes. First time you try the module we create a test account for you that is enab
 
 == Upgrade Notice ==
 
-= 6.0.0 =
+= 6.0.5 =
 Automates the process of creating shipping labels.
 
 == Screenshots ==
@@ -66,5 +66,5 @@ Automates the process of creating shipping labels.
 
 == Changelog ==
 
-= 6.0.3 =
+= 6.0.5 =
 * First release that integrates WooCommerce to the Smart Send system version 6 API.
