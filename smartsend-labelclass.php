@@ -216,6 +216,10 @@ class smartsend_label {
 			|| $this->determineCarrierSettings($order) == 'postdanmark2'
 			|| $this->determineCarrierSettings($order) == 'postdanmark3' ) {
 			return 'postdk';
+		} elseif($this->determineCarrierSettings($order) == 'gls1'
+			|| $this->determineCarrierSettings($order) == 'gls2'  
+			|| $this->determineCarrierSettings($order) == 'gls3' ) {
+			return 'gls';
 		} else {
 			return $this->determineCarrierSettings($order);
 		}
@@ -229,8 +233,12 @@ class smartsend_label {
 			return 'postdanmark2';
 		} elseif($this->getShippingMethod($order) == get_option( 'smartsend_postdanmark3_shippingmethod' )) {
 			return 'postdanmark3';
-		} elseif($this->getShippingMethod($order) == get_option( 'smartsend_gls_shippingmethod' , 'GLS' )) {
-			return 'gls';
+		} elseif($this->getShippingMethod($order) == get_option( 'smartsend_gls1_shippingmethod' , 'GLS' )) {
+			return 'gls1';
+		} elseif($this->getShippingMethod($order) == get_option( 'smartsend_gls2_shippingmethod' )) {
+			return 'gls2';
+		} elseif($this->getShippingMethod($order) == get_option( 'smartsend_gls3_shippingmethod' )) {
+			return 'gls3';
 		} elseif($this->getShippingMethod($order) == get_option( 'smartsend_swipbox_shippingmethod' , 'SwipBox' )) {
 			return 'swipbox';
 		} else {
@@ -319,8 +327,10 @@ class smartsend_label {
 			$order_information['services'] = $this->addSettingsPostdanmark($order,3);
 		} elseif($shipping_method == 'swipbox') {
 			$order_information['services'] = $this->addSettingsSwipbox($order);
-		} elseif($shipping_method == 'gls') {
-			$order_information['services'] = $this->addSettingsGls($order);
+		} elseif($shipping_method == 'gls1') {
+			$order_information['services'] = $this->addSettingsGls($order,1);
+		} elseif($shipping_method == 'gls2') {
+			$order_information['services'] = $this->addSettingsGls($order,2);
 		} else {
 			return false;
 		}
@@ -394,15 +404,15 @@ class smartsend_label {
         	);
 	}
 	
-	private function addSettingsGls($order) {
+	private function addSettingsGls($order, $id) {
 		return array(
             'addon' 	=> array(
                 'NOTEMAIL' 	=> array(
-        	        'enable' 	=> (int) get_option( 'smartsend_gls_notemail' ),
+        	        'enable' 	=> (int) get_option( 'smartsend_gls'.(string)$id.'_notemail' ),
                     'misc' 		=> $order->billing_email
                 ),
                 'NOTSMS' 	=> array(
-    	           'enable' 	=> (int) get_option( 'smartsend_gls_notsms' ),
+    	           'enable' 	=> (int) get_option( 'smartsend_gls'.(string)$id.'_notsms' ),
                     'misc'		=> $order->billing_phone
                 )
             )
