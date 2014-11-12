@@ -156,9 +156,9 @@
 				if(is_array($response_decoded)) {
 					foreach($response_decoded as $notice) {
 						if(isset($notice->link)) {
-							echo "<div id=\"message\" class=\"updated\"><a href=\"{$notice->link}\" target=\"_blank\">Link til print</a></div>";
+							echo "<div id=\"message\" class=\"updated\"><a href=\"{$notice->link}\" target=\"_blank\">{$notice->carrier} - Link til print</a></div>";
 						} elseif(isset($notice->pdflink)) {
-							echo "<div id=\"message\" class=\"updated\"><a href=\"{$notice->pdflink}\" target=\"_blank\">Link til pdf</a></div>";
+							echo "<div id=\"message\" class=\"updated\"><a href=\"{$notice->pdflink}\" target=\"_blank\">{$notice->carrier} - Link til pdf</a></div>";
 						} else {
 							echo "<div id=\"message\" class=\"".($notice->type == 'succes' ? 'updated' : $notice->type)."\"><p>{$notice->message}</p></div>";
 						}

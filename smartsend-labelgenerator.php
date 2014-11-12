@@ -5,7 +5,7 @@ Plugin URI: http://smartsend.dk/integrationer/woocommerce
 Description: Automated shipping for WooCommerce. Generate shipping labels for Post Danmark (PacsoftOnline), GLS, SwipBox and Bring directly from WooCommerce.
 Author: Smart Send ApS
 Author URI: http://www.smartsend.dk
-Version: 6.0.5
+Version: 6.0.7
 
 	Copyright: (c) 2014 Smart Send ApS (email : kontakt@smartsend.dk)
 	License: GNU General Public License v3.0
