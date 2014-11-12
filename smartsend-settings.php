@@ -84,6 +84,16 @@
 				update_option( 'smartsend_gls3_shippingmethod', $_POST[ 'smartsend_gls3_shippingmethod' ] );
 				update_option( 'smartsend_gls3_notsms', $_POST[ 'smartsend_gls3_notsms' ] );
 				update_option( 'smartsend_gls3_notemail', $_POST[ 'smartsend_gls3_notemail' ] );
+				// Bring 1
+				update_option( 'smartsend_bring1_shippingmethod', $_POST[ 'smartsend_bring1_shippingmethod' ] );
+				update_option( 'smartsend_bring1_notsms', $_POST[ 'smartsend_bring1_notsms' ] );
+				update_option( 'smartsend_bring1_notemail', $_POST[ 'smartsend_bring1_notemail' ] );
+				update_option( 'smartsend_bring1_dlv', $_POST[ 'smartsend_bring1_dlv' ] );
+				update_option( 'smartsend_bring1_srvid', $_POST[ 'smartsend_bring1_srvid' ] );
+				// Closest
+				update_option( 'smartsend_closest_notsms', $_POST[ 'smartsend_closest_notsms' ] );
+				update_option( 'smartsend_closest_notemail', $_POST[ 'smartsend_closest_notemail' ] );
+				update_option( 'smartsend_closest_swipbox_size', $_POST[ 'smartsend_closest_swipbox_size' ] );
 
 			// Put an settings updated message on the screen
 
@@ -131,6 +141,16 @@
 			$smartsend_gls3_shippingmethod 			= get_option( 'smartsend_gls3_shippingmethod' );
 			$smartsend_gls3_notsms 					= get_option( 'smartsend_gls3_notsms' );
 			$smartsend_gls3_notemail 				= get_option( 'smartsend_gls3_notemail' );
+			// Bring 1
+			$smartsend_bring1_shippingmethod 		= get_option( 'smartsend_bring1_shippingmethod' , 'Bring' );
+			$smartsend_bring1_notsms 				= get_option( 'smartsend_bring1_notsms' );
+			$smartsend_bring1_notemail 				= get_option( 'smartsend_bring1_notemail' );
+			$smartsend_bring1_dlv	 				= get_option( 'smartsend_bring1_dlv' );
+			$smartsend_bring1_srvid	 				= get_option( 'smartsend_bring1_srvid' );
+			// Closest
+			$smartsend_closest_notsms 				= get_option( 'smartsend_closest_notsms' );
+			$smartsend_closest_notemail 			= get_option( 'smartsend_closest_notemail' );
+			$smartsend_closest_swipbox_size 		= get_option( 'smartsend_closest_swipbox_size' );
 
 		// Now display the settings editing screen
 
@@ -563,6 +583,104 @@
 					<option value="1"<?php echo ($smartsend_gls3_notemail == "1" ? " selected" : ""); ?>>Yes</option>
 					<option value="0"<?php echo ($smartsend_gls3_notemail == "0" ? " selected" : ""); ?>>No</option>
 				</select>
+			</td>
+		</tr>
+		</tbody>
+		</table>
+		<hr />
+				
+		<h2><?php _e( 'Bring Settings', 'woocommerce-smartsend' ); ?></h2>
+		
+		<table class="form-table">
+		<tbody>
+		
+		<tr>
+		<th scope="row"><label for="smartsend_bring1_shippingmethod"><?php _e("Shipping method:", 'woocommerce-smartsend' ); ?></label></th>
+			<td>
+				<select name="smartsend_bring1_shippingmethod">
+					<option value="">Disabled</option>
+					<?php
+					$shipping_methods = smartsend_labelgenerator_get_all_shipping_methods();
+					foreach($shipping_methods as $shipping_method) {
+						echo '<option value="'.$shipping_method->id.'"'.($smartsend_bring1_shippingmethod == $shipping_method->id ? " selected" : "").'>'.$shipping_method->method_title.' ('.$shipping_method->title.')</option>';
+					}
+					?>
+				</select>
+			</td>
+		</tr>
+		<tr>
+		<th scope="row"><label for="smartsend_bring1_notsms"><?php _e("SMS notification:", 'woocommerce-smartsend' ); ?></label></th>
+			<td>
+				<select name="smartsend_bring1_notsms">
+					<option value="1"<?php echo ($smartsend_bring1_notsms == "1" ? " selected" : ""); ?>>Yes</option>
+					<option value="0"<?php echo ($smartsend_bring1_notsms == "0" ? " selected" : ""); ?>>No</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+		<th scope="row"><label for="smartsend_bring1_notemail"><?php _e("E-mail notification:", 'woocommerce-smartsend' ); ?></label></th>
+			<td>
+				<select name="smartsend_bring1_notemail">
+					<option value="1"<?php echo ($smartsend_bring1_notemail == "1" ? " selected" : ""); ?>>Yes</option>
+					<option value="0"<?php echo ($smartsend_bring1_notemail == "0" ? " selected" : ""); ?>>No</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+		<th scope="row"><label for="smartsend_bring1_dlv"><?php _e("Home delivery:", 'woocommerce-smartsend' ); ?></label></th>
+			<td>
+				<select name="smartsend_bring1_dlv">
+					<option value="1"<?php echo ($smartsend_bring1_dlv == "1" ? " selected" : ""); ?>>Yes</option>
+					<option value="0"<?php echo ($smartsend_bring1_dlv == "0" ? " selected" : ""); ?>>No</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+		<th scope="row"><label for="smartsend_bring1_srvid"><?php _e("Shipping service:", 'woocommerce-smartsend' ); ?></label></th>
+			<td>
+				<select name="smartsend_bring1_srvid">
+					<option value="auto"<?php echo ($smartsend_bring1_srvid == "auto" ? " selected" : ""); ?>>Standard</option>
+					<option value="commercial"<?php echo ($smartsend_bring1_srvid == "commercial" ? " selected" : ""); ?>>Commercial</option>
+					<option value="private"<?php echo ($smartsend_bring1_srvid == "private" ? " selected" : ""); ?>>Private</option>
+				</select>
+			</td>
+		</tr>
+		</tbody>
+		</table>
+		<hr />
+		
+				<h2><?php _e( 'Closest Pickup Settings', 'woocommerce-smartsend' ); ?></h2>
+		
+		<table class="form-table">
+		<tbody>
+		
+		<tr>
+		<th scope="row"><label for="smartsend_closest_notsms"><?php _e("SMS notification:", 'woocommerce-smartsend' ); ?></label></th>
+			<td>
+				<select name="smartsend_closest_notsms">
+					<option value="1"<?php echo ($smartsend_closest_notsms == "1" ? " selected" : ""); ?>>Yes</option>
+					<option value="0"<?php echo ($smartsend_closest_notsms == "0" ? " selected" : ""); ?>>No</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+		<th scope="row"><label for="smartsend_closest_notemail"><?php _e("E-mail notification:", 'woocommerce-smartsend' ); ?></label></th>
+			<td>
+				<select name="smartsend_closest_notemail">
+					<option value="1"<?php echo ($smartsend_gls1_notemail == "1" ? " selected" : ""); ?>>Yes</option>
+					<option value="0"<?php echo ($smartsend_gls1_notemail == "0" ? " selected" : ""); ?>>No</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+		<th scope="row"><label for="smartsend_closest_swipbox_size"><?php _e("Package size (only for SwipBox):", 'woocommerce-smartsend' ); ?></label></th>
+			<td>
+				<select name="smartsend_closest_swipbox_size">
+					<option value="1"<?php echo ($smartsend_closest_swipbox_size == "1" ? " selected" : ""); ?>>Small</option>
+					<option value="2"<?php echo ($smartsend_closest_swipbox_size == "2" ? " selected" : ""); ?>>Medium</option>
+					<option value="3"<?php echo ($smartsend_closest_swipbox_size == "3" ? " selected" : ""); ?>>Large</option>
+				</select>
+				<p class="description"><?php _e("Small: 10x40x60cm, Medium: 20x40x60cm, Large: 40x40x60cm"); ?></p>
 			</td>
 		</tr>
 		</tbody>

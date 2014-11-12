@@ -4,7 +4,7 @@ Donate link: http://www.SmartSend.dk/
 Tags: shipping, label, post danmark, gls, swipbox, bring, carrier, pacsoft, yourgls, mybring, postage, shipping method, your-gls, my-bring, pacosft-online, pacsoftonline, denmark, sweeden, posten, norway, post 
 Requires at least: 3.0.1
 Tested up to: 4.0
-Stable tag: 6.0.6
+Stable tag: 6.0.7
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -54,6 +54,9 @@ Yes. First time you try the module we create a test account for you that is enab
 
 == Upgrade Notice ==
 
+= 6.0.7 =
+Adding support for Bring (MyBring). Fixing error with GLS (3) settings.
+
 = 6.0.6 =
 Adding support of multiple GLS shipping methods and Post Danmark Varebrev. Fixing error with GLS notification services.
 
@@ -68,6 +71,10 @@ Automates the process of creating shipping labels.
 4. Settings used to determine the carriers and the services
 
 == Changelog ==
+= 6.0.7 =
+* Adding support for Bring (MyBring).
+* Fixing error with GLS (3) settings.
+
 = 6.0.6 =
 * Adding support of multiple (3) GLS shipping methods.
 * Adding Post Danmark Varebrev as shipping method.
