@@ -118,16 +118,18 @@ class smartsend_label {
 
 		foreach($response_decoded->carriers as $carrier=>$carrier_response) {
 			if($carrier_response != '') {
-				if($carrier_response->status >= 200 && $carrier_response->status <= 210) {
+				if($carrier_response->status >= 200 && $carrier_response->status < 210) {
 					if( $carrier_response->link != '') {
 						$messages[] = array(
-							"type" 	=> 'succes',
-							"link" => $carrier_response->link
+							"type" 		=> 'succes',
+							"link" 		=> $carrier_response->link,
+							"carrier" 	=> $carrier,
 							);
 					} elseif( $carrier_response->pdflink != '' ) {
 						$messages[] = array(
-							"type" 	=> 'succes',
-							"pdflink" => $carrier_response->pdflink
+							"type" 		=> 'succes',
+							"pdflink" 	=> $carrier_response->pdflink,
+							"carrier" 	=> $carrier,
 							);
 					} else {
 						$messages[] = array(
@@ -137,6 +139,20 @@ class smartsend_label {
 
 					}
 				} else {
+					if( $carrier_response->link != '') {
+						$messages[] = array(
+							"type" 		=> 'succes',
+							"link" 		=> $carrier_response->link,
+							"carrier" 	=> $carrier,
+							);
+					} elseif( $carrier_response->pdflink != '' ) {
+						$messages[] = array(
+							"type" 		=> 'succes',
+							"pdflink" 	=> $carrier_response->pdflink,
+							"carrier" 	=> $carrier,
+							);
+					}
+				
 					$messages[] = array(
 							"type" 	=> 'error',
 							"message" => $carrier.' - '.$carrier_response->status.': '.$carrier_response->message
@@ -216,6 +232,25 @@ class smartsend_label {
 			|| $this->determineCarrierSettings($order) == 'postdanmark2'
 			|| $this->determineCarrierSettings($order) == 'postdanmark3' ) {
 			return 'postdk';
+		} elseif($this->determineCarrierSettings($order) == 'gls1'
+			|| $this->determineCarrierSettings($order) == 'gls2'  
+			|| $this->determineCarrierSettings($order) == 'gls3' ) {
+			return 'gls';
+		} elseif($this->determineCarrierSettings($order) == 'bring1') {
+			return 'bringdk';
+		} elseif($this->determineCarrierSettings($order) == 'closest') {
+			$pickup_date = $this->getSmartsendCheckoutData($order);
+			if($pickup_date['type'] == 'PostDanmark') {
+				return 'postdk';
+			} elseif($pickup_date['type'] == 'GLS') {
+				return 'gls';
+			} elseif($pickup_date['type'] == 'SwipBox') {
+				return 'swipbox';
+			} elseif($pickup_date['type'] == 'Bring') {
+				return 'bringdk';
+			} else {
+				return false;
+			}	
 		} else {
 			return $this->determineCarrierSettings($order);
 		}
@@ -229,10 +264,18 @@ class smartsend_label {
 			return 'postdanmark2';
 		} elseif($this->getShippingMethod($order) == get_option( 'smartsend_postdanmark3_shippingmethod' )) {
 			return 'postdanmark3';
-		} elseif($this->getShippingMethod($order) == get_option( 'smartsend_gls_shippingmethod' , 'GLS' )) {
-			return 'gls';
+		} elseif($this->getShippingMethod($order) == get_option( 'smartsend_gls1_shippingmethod' , 'GLS' )) {
+			return 'gls1';
+		} elseif($this->getShippingMethod($order) == get_option( 'smartsend_gls2_shippingmethod' )) {
+			return 'gls2';
+		} elseif($this->getShippingMethod($order) == get_option( 'smartsend_gls3_shippingmethod' )) {
+			return 'gls3';
 		} elseif($this->getShippingMethod($order) == get_option( 'smartsend_swipbox_shippingmethod' , 'SwipBox' )) {
 			return 'swipbox';
+		} elseif($this->getShippingMethod($order) == get_option( 'smartsend_bring1_shippingmethod' , 'Bring' )) {
+			return 'bring1';
+		} elseif($this->getShippingMethod($order) == 'PickupPoints') {
+			return 'closest';
 		} else {
 			return false;
 		}
@@ -282,7 +325,10 @@ class smartsend_label {
 			'freetext2' 	=> '',
 			"container" 	=> array(
 				array(
-					"weight" => $this->getOrderTotalWeight($order),
+					"type" 		=> "parcel",
+                    "measure" 	=> "totals",
+                    "copies"	=> 1,
+					"weight" 	=> $this->getOrderTotalWeight($order),
 					"contents" 	=> ''
 					)
 				)
@@ -319,8 +365,16 @@ class smartsend_label {
 			$order_information['services'] = $this->addSettingsPostdanmark($order,3);
 		} elseif($shipping_method == 'swipbox') {
 			$order_information['services'] = $this->addSettingsSwipbox($order);
-		} elseif($shipping_method == 'gls') {
-			$order_information['services'] = $this->addSettingsGls($order);
+		} elseif($shipping_method == 'gls1') {
+			$order_information['services'] = $this->addSettingsGls($order,1);
+		} elseif($shipping_method == 'gls2') {
+			$order_information['services'] = $this->addSettingsGls($order,2);
+		} elseif($shipping_method == 'gls3') {
+			$order_information['services'] = $this->addSettingsGls($order,3);
+		} elseif($shipping_method == 'bring1') {
+			$order_information['services'] = $this->addSettingsBring($order,1);
+		} elseif($shipping_method == 'closest') {
+			$order_information['services'] = $this->addSettingsClosest($order);
 		} else {
 			return false;
 		}
@@ -335,12 +389,93 @@ class smartsend_label {
 	
 	}
 	
+	private function addSettingsClosest($order) {
+		
+		$pickup_date = $this->getSmartsendCheckoutData($order);
+		
+		if($pickup_date['type'] == 'PostDanmark') {
+		/* Add Post Danmark settings */
+			return array(
+				'shipdate' 	=> array(
+					'enable' 	=> 0,
+					'misc' 		=> ''//"2014-03-17"
+				),
+				'srvid' 	=> 'P19DK',
+				'addon' 	=> array(
+					'pupopt' 	=> array(
+						'enable' 	=> 1,
+					),
+					'DLV' 		=> array(
+						'enable' 	=> 0,
+					),
+					'NOTEMAIL' 	=> array(
+						'enable' 	=> (int) get_option( 'smartsend_closest_notemail' ),
+						'misc' 		=> $order->billing_email
+					),
+					'NOTSMS' 	=> array(
+					   'enable' 	=> (int) get_option( 'smartsend_closest_notsms' ),
+						'misc'		=> $order->billing_phone
+					)
+				),
+				'enot' 		=> array(
+					'enable' 	=> 0,
+					'from' 		=> '',
+					'to'		=> ''
+				)
+		   );
+		   
+		} elseif($pickup_date['type'] == 'GLS') {
+		/* Add GLS settings */
+			return array(
+				'addon' 	=> array(
+					'NOTEMAIL' 	=> array(
+						'enable' 	=> (int) get_option( 'smartsend_closest_notemail' ),
+						'misc' 		=> $order->billing_email
+					),
+					'NOTSMS' 	=> array(
+					   'enable' 	=> (int) get_option( 'smartsend_closest_notsms' ),
+						'misc'		=> $order->billing_phone
+					)
+				)
+			);
+		} elseif($pickup_date['type'] == 'SwipBox') {
+		/* Add SwipBox settings */
+			return array(
+				'sr_hours' 		=> 72,
+				's_webshop_id'	=> null,
+				'pay_status'	=> null,
+				'parcel_size'	=> (int) get_option( 'smartsend_closest_swipbox_size' , 1),
+				'test_parcel'	=> (int) get_option( 'smartsend_general_testing' , 0),
+				'parcel_id'		=> 0,
+				'return_parcel'	=> 0
+        	);
+		} elseif($pickup_date['type'] == 'Bring') {
+		/* Add Bring settings */
+			return array(
+				'srvid' 	=> 'private',
+				'DLV' 		=> array(
+					'enable' 	=> 0,
+				),
+				'NOTEMAIL' 	=> array(
+					'enable' 	=> (int) get_option( 'smartsend_closest_notemail' , 1),
+					'misc' 		=> $order->billing_email
+				),
+				'NOTSMS' 	=> array(
+				   'enable' 	=> (int) get_option( 'smartsend_closest_notsms' , 1),
+					'misc'		=> $order->billing_phone
+				)
+			);
+		} else {
+			return false;
+		}
+	}
+	
 	private function addSettingsPostdanmark($order, $id) {
 		
 		if($this->determineCheckout($order)) {
 			$srvid = 'P19DK';
 		} else {
-			if(get_option( 'smartsend_postdanmark'.(string)$id.'_srvid' ) == 'auto') {
+			if(get_option( 'smartsend_postdanmark'.(string)$id.'_srvid' , 'auto') == 'auto') {
 				if($order->billing_company != '') {
 					$srvid = 'commercial';
 				} else {
@@ -374,9 +509,10 @@ class smartsend_label {
                 )
             ),
             'enot' 		=> array(
-                'enable' 	=> 0,
-                'from' 		=> '',
-                'to'		=> ''
+                'enable' 	=> (int) get_option( 'smartsend_postdanmark'.(string)$id.'_enot' ),
+                'from' 		=> get_option( 'smartsend_postdanmark'.(string)$id.'_enot_from' ),
+                'to'		=> (get_option( 'smartsend_postdanmark'.(string)$id.'_enot_to' ) == 'user' ? $order->billing_email : get_option( 'smartsend_postdanmark'.(string)$id.'_enot_to' )),
+                'message' 	=> get_option( 'smartsend_postdanmark'.(string)$id.'_enot_message' ),
             )
        );
 	}
@@ -387,25 +523,57 @@ class smartsend_label {
 			'sr_hours' 		=> 72,
             's_webshop_id'	=> null,
             'pay_status'	=> null,
-            'parcel_size'	=> (int) get_option( 'smartsend_swipbox_size' ),
-            'test_parcel'	=> (int) get_option( 'smartsend_general_testing' ),
+            'parcel_size'	=> (int) get_option( 'smartsend_swipbox_size' , 1),
+            'test_parcel'	=> (int) get_option( 'smartsend_general_testing' , 0),
         	'parcel_id'		=> 0,
         	'return_parcel'	=> 0
         	);
 	}
 	
-	private function addSettingsGls($order) {
+	private function addSettingsGls($order, $id) {
 		return array(
             'addon' 	=> array(
                 'NOTEMAIL' 	=> array(
-        	        'enable' 	=> (int) get_option( 'smartsend_gls_notemail' ),
+        	        'enable' 	=> (int) get_option( 'smartsend_gls'.(string)$id.'_notemail' ),
                     'misc' 		=> $order->billing_email
                 ),
                 'NOTSMS' 	=> array(
-    	           'enable' 	=> (int) get_option( 'smartsend_gls_notsms' ),
+    	           'enable' 	=> (int) get_option( 'smartsend_gls'.(string)$id.'_notsms' ),
                     'misc'		=> $order->billing_phone
                 )
             )
+        );
+	}
+	
+	private function addSettingsBring($order, $id) {
+	
+		if($this->determineCheckout($order)) {
+			$srvid = 'private';
+		} else {
+			if(get_option( 'smartsend_bring'.(string)$id.'_srvid' , 'auto') == 'auto') {
+				if($order->billing_company != '') {
+					$srvid = 'commercial';
+				} else {
+					$srvid = 'private';
+				}
+			} else {
+				$srvid = get_option( 'smartsend_bring'.(string)$id.'_srvid' );
+			}
+		}
+	
+		return array(
+			'srvid' 	=> $srvid,
+			'DLV' 		=> array(
+				'enable' 	=> (!$this->determineCheckout($order) ? (int)get_option( 'smartsend_bring'.(string)$id.'_dlv' ) : 0 ),
+			),
+			'NOTEMAIL' 	=> array(
+				'enable' 	=> (int) get_option( 'smartsend_bring'.(string)$id.'_notemail' ),
+				'misc' 		=> $order->billing_email
+			),
+			'NOTSMS' 	=> array(
+			   'enable' 	=> (int) get_option( 'smartsend_bring'.(string)$id.'_notsms' ),
+				'misc'		=> $order->billing_phone
+			)
         );
 	}
 	
