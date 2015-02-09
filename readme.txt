@@ -4,7 +4,7 @@ Donate link: http://www.SmartSend.dk/
 Tags: shipping, label, post danmark, gls, swipbox, bring, carrier, pacsoft, yourgls, mybring, postage, shipping method, your-gls, my-bring, pacosft-online, pacsoftonline, denmark, sweeden, posten, norway, post 
 Requires at least: 3.0.1
 Tested up to: 4.1
-Stable tag: 6.0.7
+Stable tag: 6.0.8
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
